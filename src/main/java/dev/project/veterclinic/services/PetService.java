@@ -2,7 +2,6 @@ package dev.project.veterclinic.services;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 import dev.project.veterclinic.exceptions.owner.OwnerNotFoundException;
 import dev.project.veterclinic.dtos.PetDto;
@@ -108,23 +107,25 @@ public class PetService {
         
     }
 
-    public Pet updateById (int id, Pet updatePet) {
-        Optional<Pet> existingPet= petRepository.findById(id); // Optional maneja valores que pueden o no estar presentes, icluye el metodo isPresent
-        if (existingPet.isPresent()) {
-            Pet pet = existingPet.get();
-            pet.setName(updatePet.getName());
-            pet.setDateOfBirth(updatePet.getDateOfBirth());
-//            pet.setBread_id(updatePet.getBread_id());
-            pet.setGender(updatePet.getGender());
-//            pet.setOwner_id(updatePet.getOwnerId());
+    public void updateById (int id, PetDto updatePetdDto) {
+        Pet pet= petRepository.findById(id).orElseThrow(()-> new PetNotFoundException("Pet not found by id"));
 
-            return petRepository.save(pet);
+        pet.setName(updatePetdDto.name());
+        pet.setDateOfBirth(updatePetdDto.dateOfBirth());
+        pet.setGender(updatePetdDto.gender());
 
+        Breed breed= breedRepository.findByName(updatePetdDto.breed());
+        if (breed==null) {
+            breed= new Breed(updatePetdDto.breed());
+            breedRepository.save(breed);
         }
+        pet.setBreed(breed);
 
-        else {
-            throw new RuntimeException ("Pet not found with ID" + id);
-        }
+        Owner owner= ownerRepository.findById(updatePetdDto.ownerId()).orElseThrow(()->
+        new PetNotFoundException("Owner not found by id"));
+        pet.setOwner(owner);
+
+        petRepository.save(pet);
     }
-        
 }
+

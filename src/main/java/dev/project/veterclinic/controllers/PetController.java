@@ -45,14 +45,14 @@ public class PetController {
         return ResponseEntity.status(200).body("Deleted successfully");
     }
 
-    // @PutMapping("/{id}")
-    // public ResponseEntity<Pet> updatePet(@PathVariable int id, @RequestBody Pet updatePet) {
-    //     try {Pet pet = service.updateById(id, updatePet);
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updatePet(@PathVariable int id, @RequestBody PetDto updatePetDto) {
+    try { service.updateById(id, updatePetDto);
         
-    //     return ResponseEntity.ok(pet);
-    // } catch (RuntimeException e) {
+    return ResponseEntity.status(200).body("Pet update successfully");
+    } catch (RuntimeException e) {
 
-    //     return ResponseEntity.status(404).body(null); //return 404 if is not found
-    //     }
-    // }
+       return ResponseEntity.status(404).body(e.getMessage()); //return 404 if is not found
+    }
+    }
 }
